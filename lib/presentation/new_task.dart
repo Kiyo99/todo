@@ -85,7 +85,7 @@ class _NewTaskState extends State<NewTask> {
                           )),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 11),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
