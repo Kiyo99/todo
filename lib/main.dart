@@ -7,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final _firestore = FirebaseFirestore.instance;
-int numm = 8;
+int numm = 0;
 final num2 = useState(0);
 
 Future<void> main() async {
@@ -29,31 +29,25 @@ class MyApp extends HookWidget {
 
 
 
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'To Do',
       home: MyHomePage(
-        title: 'To Do',
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePage extends HookWidget {
   TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    var nn = useState(0);
+
+    _firestore.collection('Home').snapshots().length.then((value) => nn.value = value);
+    print('Home numberrrr: ${nn.value}');
+
     return Scaffold(
       body: Container(
         padding: EdgeInsets.all(40),
@@ -68,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     CustomWidget(
                       categoryName: 'Home',
-                      categoryNum: numm,
+                      categoryNum: nn.value,
                       ontap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(

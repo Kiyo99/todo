@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:todo/main.dart';
 import 'package:todo/presentation/box_component.dart';
 import 'package:todo/presentation/tile.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +37,7 @@ class ViewTask extends HookWidget {
   Widget build(BuildContext context) {
     print(docID);
     useEffect(() {
+
       FirebaseFirestore.instance
           .collection(category)
           .doc(docID)
