@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CustomWidget extends StatelessWidget {
+class CustomWidget extends HookWidget {
   const CustomWidget({required this.categoryName, required this.categoryNum, required this.ontap});
 
   final String categoryName;

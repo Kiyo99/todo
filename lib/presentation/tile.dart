@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class SmallTile extends StatefulWidget {
-  const SmallTile({Key? key, required this.title}) : super(key: key);
+class SmallTile extends HookWidget {
+  SmallTile({Key? key, required this.title});
 
   final String title;
-
-  @override
-  State<SmallTile> createState() => _SmallTileState();
-}
-
-class _SmallTileState extends State<SmallTile> {
-  bool _throwShotAway = false;
-  Color _color = Color(0xff828588);
-
   @override
   Widget build(BuildContext context) {
+
+    final checkStatus = useState(false);
+
+    Color _color = Color(0xff828588);
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -23,24 +19,24 @@ class _SmallTileState extends State<SmallTile> {
             unselectedWidgetColor: _color,
           ),
           child: Checkbox(
-            value: _throwShotAway,
+            value: checkStatus.value,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
             activeColor: Colors.black,
             onChanged: (bool? newValue) {
-              setState(() {
-                _throwShotAway = newValue!;
-              });
+                checkStatus.value = newValue!;
+                print('New value: $newValue');
+                print('ini: ${checkStatus.value}');
             },
           ),
         ),
         Text(
-          widget.title,
+          title,
           style: TextStyle(
               color: Color(0xffA8ACB1),
               fontWeight: FontWeight.bold,
-              decoration: _throwShotAway? TextDecoration.lineThrough : null),
+              decoration: checkStatus.value? TextDecoration.lineThrough : null),
         ),
       ],
     );
