@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:todo/presentation/box_component.dart';
 import 'package:todo/presentation/tile.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -25,21 +24,16 @@ class ViewTask extends HookWidget {
   String desc;
   String selectedDay;
   String docID;
+  List<String> arr = [];
 
   // DocumentReference snapp = _firestore.collection(category).doc(docID);
 
   Color _color = const Color(0xffEEF0F2);
-  Color _color2 = const Color(0xff848587);
+  final Color _color2 = const Color(0xff848587);
   Color _color3 = const Color(0xffD38394);
 
   @override
   Widget build(BuildContext context) {
-    //firebase stuff
-    Future<List<DocumentSnapshot>> getData() async {
-      QuerySnapshot qn = await _firestore.collection("UserTransactions").get();
-      return qn.docs;
-    }
-
     print(docID);
     useEffect(() {
       FirebaseFirestore.instance
@@ -61,6 +55,7 @@ class ViewTask extends HookWidget {
     final category2 = useState(category);
     final _selectedDay = useState(DateTime.now());
     final dateChanged = useState(false);
+    final subtasksFB = useState(true);
     return Scaffold(
       // resizeToAvoidBottomInset : false,
       appBar: AppBar(
@@ -69,7 +64,6 @@ class ViewTask extends HookWidget {
         elevation: 0,
       ),
       body: GestureDetector(
-
         onTap: () => FocusScope.of(context).unfocus(),
         child: Container(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -100,7 +94,8 @@ class ViewTask extends HookWidget {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 labelStyle: TextStyle(
-                                  color: const Color(0xff3F3F42).withOpacity(0.7),
+                                  color:
+                                  const Color(0xff3F3F42).withOpacity(0.7),
                                 ),
                               ),
                             ),
@@ -127,14 +122,16 @@ class ViewTask extends HookWidget {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Container(
-                                    padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
+                                    padding:
+                                    const EdgeInsets.fromLTRB(3, 0, 3, 0),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.rectangle,
                                       borderRadius: BorderRadius.circular(20),
                                       color: Colors.white,
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                       children: [
                                         const Icon(Icons.stop_circle,
                                             color: Colors.lightGreen),
@@ -180,22 +177,14 @@ class ViewTask extends HookWidget {
                                   // padding: EdgeInsets.all(3),
                                   child: TextButton(
                                       style: const ButtonStyle(),
-                                      onPressed: () {
-                                        DatePicker.showDatePicker(context,
-                                            showTitleActions: true,
-                                            minTime: DateTime(2010, 01, 01),
-                                            maxTime: DateTime(2049, 12, 31),
-                                            onChanged: (date) {
-                                              print('change $date');
-                                              _selectedDay.value = date;
-                                              dateChanged.value = true;
-                                            }, onConfirm: (date) {
-                                              print('confirm $date');
-                                              dateChanged.value = true;
-                                              _selectedDay.value = date;
-                                            },
-                                            currentTime: DateTime.now(),
-                                            locale: LocaleType.en);
+                                      onPressed: () async {
+                                        final selected = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(2010, 01, 01),
+                                            lastDate: DateTime(2049, 12, 31));
+                                        _selectedDay.value = selected!;
+                                        dateChanged.value = true;
                                       },
                                       child: Row(
                                         mainAxisAlignment:
@@ -203,18 +192,24 @@ class ViewTask extends HookWidget {
                                         children: [
                                           Text(
                                             dateChanged.value
-                                                ? DateFormat(DateFormat.ABBR_MONTH)
-                                                .format(_selectedDay.value) +
+                                                ? DateFormat(DateFormat
+                                                .ABBR_MONTH)
+                                                .format(_selectedDay
+                                                .value) +
                                                 ' ' +
-                                                _selectedDay.value.day.toString() +
+                                                _selectedDay.value.day
+                                                    .toString() +
                                                 ' ' +
-                                                _selectedDay.value.year.toString()
+                                                _selectedDay.value.year
+                                                    .toString()
                                                 : selectedDay,
                                             style: const TextStyle(
                                                 color: Color(0xff464646),
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          const Icon(Icons.keyboard_arrow_down_outlined,
+                                          const Icon(
+                                              Icons
+                                                  .keyboard_arrow_down_outlined,
                                               color: Colors.black),
                                         ],
                                       )),
@@ -256,22 +251,22 @@ class ViewTask extends HookWidget {
                         builder: (context, snapshots) {
                           if (snapshots.hasData) {
                             final messages = snapshots.data?.data();
-
-
-                            // tileTitle.value = List.from(messages!['Subtasks']);
-                            print('Hello: ${tileTitle.value}');
-
                             if (messages!.containsKey('Subtasks')) {
+                              tileTitle.value = List.from(messages['Subtasks']);
+                              arr = List.from(messages['Subtasks']);
+                              print('Hello: ${tileTitle.value}');
+                              print ('New Array: $arr');
+
                               return ListView.builder(
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,
                                 physics: const ClampingScrollPhysics(),
-                                itemCount: messages['Subtasks'].length,
+                                itemCount: tileTitle.value.length,
                                 itemBuilder: (context, index) {
                                   return Container(
                                     height: 30,
                                     child:
-                                    SmallTile(title: messages['Subtasks'][index]),
+                                    SmallTile(title: tileTitle.value[index]),
                                   );
                                 },
                               );
@@ -291,16 +286,17 @@ class ViewTask extends HookWidget {
                               context: context,
                               builder: (BuildContext context) {
                                 return Container(
-                                  height: 800,
+                                  height: 700,
                                   color: const Color(0xffECE3C3),
                                   child: Center(
                                     child: SingleChildScrollView(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
                                           TextField(
-                                            onSubmitted: (String value) {
+                                            onChanged: (String value) {
                                               SingleTileTitle.value = value;
                                             },
                                             textAlign: TextAlign.center,
@@ -314,14 +310,23 @@ class ViewTask extends HookWidget {
                                           ElevatedButton(
                                             child: const Text('Add subtask'),
                                             onPressed: () {
-                                              if (SingleTileTitle.value == null) {
+                                              if (SingleTileTitle.value ==
+                                                  null) {
                                                 Navigator.pop(context);
                                               } else {
-                                                Map<String, Object> db = new Map();
+                                                Map<String, Object> db =
+                                                new Map();
 
-                                                tileTitle.value = tileTitle.value
+                                                tileTitle.value = tileTitle
+                                                    .value
                                                     .toList()
                                                   ..add(SingleTileTitle.value);
+
+                                                arr = arr.toList()..add(SingleTileTitle.value);
+
+                                                print('new array222222: $arr');
+
+                                                print('Tile33333: ${tileTitle.value}');
 
                                                 db['Subtasks'] =
                                                     tileTitle.value.toList();
@@ -359,45 +364,6 @@ class ViewTask extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Container(
-                  //     decoration: BoxDecoration(
-                  //         color: Colors.white,
-                  //         borderRadius: BorderRadius.circular(10),
-                  //         border: Border.all(color: _color)),
-                  //     padding: EdgeInsets.all(5),
-                  //     child: Row(
-                  //       children: const [
-                  //         Icon(Icons.insert_drive_file_outlined,
-                  //             color: Color(0xff828588)),
-                  //         SizedBox(width: 5),
-                  //         Text(
-                  //           'Logo manual.pdf',
-                  //           style: TextStyle(
-                  //               color: Color(0xff828588),
-                  //               fontWeight: FontWeight.bold),
-                  //         ),
-                  //       ],
-                  //     )),
-                  // SizedBox(height: 10),
-                  // Container(
-                  //     decoration: BoxDecoration(
-                  //         borderRadius: BorderRadius.circular(10),
-                  //         color: Colors.white,
-                  //         border: Border.all(color: _color)),
-                  //     padding: EdgeInsets.all(5),
-                  //     child: Row(
-                  //       children: const [
-                  //         Icon(Icons.insert_drive_file_outlined,
-                  //             color: Color(0xff828588)),
-                  //         SizedBox(width: 5),
-                  //         Text(
-                  //           'Logo manual.pdf',
-                  //           style: TextStyle(
-                  //               color: Color(0xff828588),
-                  //               fontWeight: FontWeight.bold),
-                  //         ),
-                  //       ],
-                  //     )),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -410,29 +376,27 @@ class ViewTask extends HookWidget {
                             onPressed: () {
                               _showToast(context, 'Updating...');
 
-                                  Map<String, Object> db = new Map();
-                                  db['Title'] = title;
-                                  db['Description'] = desc;
-                                  db['Due date'] =
-                                      DateFormat(DateFormat.ABBR_MONTH)
-                                          .format(_selectedDay.value) +
-                                          ' ' +
-                                          _selectedDay.value.day.toString() +
-                                          ' ' +
-                                          _selectedDay.value.year.toString();
-                                  db['Subtasks'] = tileTitle.value.toList();
+                              Map<String, Object> db = new Map();
+                              db['Title'] = title;
+                              db['Description'] = desc;
+                              db['Due date'] = DateFormat(DateFormat.ABBR_MONTH)
+                                  .format(_selectedDay.value) +
+                                  ' ' +
+                                  _selectedDay.value.day.toString() +
+                                  ' ' +
+                                  _selectedDay.value.year.toString();
+                              db['Subtasks'] = tileTitle.value.toList();
 
-                                  _firestore
-                                      .collection(category2.value)
-                                      .doc(docID)
-                                      .update(db)
-                                      .whenComplete(() {
-                                    _showToast(context, 'Successfully Updated');
-                                    Navigator.pop(context);
-                                  }).onError((error, stackTrace) => () {
-                                    _showToast(
-                                        context, 'Failed to delete');
-                                  });
+                              _firestore
+                                  .collection(category2.value)
+                                  .doc(docID)
+                                  .update(db)
+                                  .whenComplete(() {
+                                _showToast(context, 'Successfully Updated');
+                                Navigator.pop(context);
+                              }).onError((error, stackTrace) => () {
+                                _showToast(context, 'Failed to delete');
+                              });
                             },
                             child: Text(
                               'Update task',
@@ -457,8 +421,7 @@ class ViewTask extends HookWidget {
                                 _showToast(context, 'Successfully deleted');
                                 Navigator.pop(context);
                               }).onError((error, stackTrace) => () {
-                                _showToast(
-                                    context, 'Failed to delete');
+                                _showToast(context, 'Failed to delete');
                               });
                             },
                             child: const Text(
@@ -475,6 +438,8 @@ class ViewTask extends HookWidget {
         ),
       ),
     );
+    }
+
   }
 
   void _showToast(BuildContext context, String message) {
@@ -487,4 +452,4 @@ class ViewTask extends HookWidget {
       ),
     );
   }
-}
+
