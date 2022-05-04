@@ -253,10 +253,11 @@ class NewTask extends HookWidget {
                                                 ..add(SingleTileTitle.value);
 
                                               myList.add({
-                                                tileTitle.value: SmallTile.checkStatuss
+                                                SingleTileTitle.value: SmallTile.checkStatuss
                                               });
 
                                               print('LIsssssssssss: $myList');
+                                              print('LIsdgvfddgsssss: ${tileTitle.value}');
                                               
                                               Navigator.pop(context);
                                             }
@@ -313,6 +314,7 @@ class NewTask extends HookWidget {
                                 ' ' +
                                 _selectedDay.value.year.toString();
                             db['Subtasks'] = tileTitle.value.toList();
+                            db['subtasks2'] = myList.toList();
 
                             _firestore
                                 .collection(category.value)
