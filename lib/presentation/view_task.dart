@@ -25,7 +25,6 @@ class ViewTask extends HookWidget {
   String desc;
   String selectedDay;
   String docID;
-  List<String> arr = [];
 
   // DocumentReference snapp = _firestore.collection(category).doc(docID);
 
@@ -57,7 +56,7 @@ class ViewTask extends HookWidget {
     final category2 = useState(category);
     final _selectedDay = useState(DateTime.now());
     final dateChanged = useState(false);
-    final subtasksFB = useState(true);
+    final subtasksFb = useState(true);
     return Scaffold(
       // resizeToAvoidBottomInset : false,
       appBar: AppBar(
@@ -245,6 +244,7 @@ class ViewTask extends HookWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      subtasksFb.value?
                       FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                         future: FirebaseFirestore.instance
                             .collection(category)
@@ -255,9 +255,8 @@ class ViewTask extends HookWidget {
                             final messages = snapshots.data?.data();
                             if (messages!.containsKey('Subtasks')) {
                               tileTitle.value = List.from(messages['Subtasks']);
-                              arr = List.from(messages['Subtasks']);
-                              print('Hello: ${tileTitle.value}');
-                              print ('New Array: $arr');
+                              print('Firebase DB: ${messages['Subtasks']}');
+                              print('Local DB: ${tileTitle.value}');
 
                               return ListView.builder(
                                 scrollDirection: Axis.vertical,
@@ -268,7 +267,7 @@ class ViewTask extends HookWidget {
                                   return Container(
                                     height: 30,
                                     child:
-                                    SmallTile(title: tileTitle.value[index]),
+                                    SmallTile(title: tileTitle.value[index], check: true,),
                                   );
                                 },
                               );
@@ -279,7 +278,18 @@ class ViewTask extends HookWidget {
                             child: Text('Data not available'),
                           );
                         },
-                      ),
+                      )
+                      : ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            print('Switched to Local view');
+                            return Container(
+                              height: 30,
+                              child: SmallTile(title: tileTitle.value[index], check: false,),
+                            );
+                          },
+                          itemCount: tileTitle.value.length),
                       const SizedBox(height: 20),
                       GestureDetector(
                         onTap: () {
@@ -312,26 +322,23 @@ class ViewTask extends HookWidget {
                                           ElevatedButton(
                                             child: const Text('Add subtask'),
                                             onPressed: () {
+                                              subtasksFb.value = false;
                                               if (SingleTileTitle.value ==
                                                   null) {
                                                 Navigator.pop(context);
                                               } else {
-                                                Map<String, Object> db =
-                                                new Map();
-
+                                                // Map<String, Object> db =
+                                                // new Map();
+                                                print('Attempting to save to local list');
                                                 tileTitle.value = tileTitle
                                                     .value
                                                     .toList()
                                                   ..add(SingleTileTitle.value);
-
-                                                arr = arr.toList()..add(SingleTileTitle.value);
-
-                                                print('new array222222: $arr');
-
-                                                print('Tile33333: ${tileTitle.value}');
-
-                                                db['Subtasks'] =
-                                                    tileTitle.value.toList();
+                                                // arr = arr.toList()..add(SingleTileTitle.value);
+                                                // print('new array222222: $arr');
+                                                print('New Tile: ${tileTitle.value}');
+                                                // db['Subtasks'] =
+                                                //     tileTitle.value.toList();
                                                 Navigator.pop(context);
                                               }
                                             },
@@ -388,6 +395,7 @@ class ViewTask extends HookWidget {
                                   ' ' +
                                   _selectedDay.value.year.toString();
                               db['Subtasks'] = tileTitle.value.toList();
+
 
                               _firestore
                                   .collection(category2.value)

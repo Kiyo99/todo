@@ -25,6 +25,8 @@ class NewTask extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final tileTitle = useState(<String>[]);
+    final fBList = useState(['',]);
+    final fBCheck = useState(false);
     final SingleTileTitle = useState('');
     final category = useState('Home');
     final _selectedDay = useState(DateTime.now());
@@ -209,7 +211,7 @@ class NewTask extends HookWidget {
                         itemBuilder: (context, index) {
                           return Container(
                             height: 30,
-                            child: SmallTile(title: tileTitle.value[index]),
+                            child: SmallTile(title: tileTitle.value[index], check: fBCheck.value),
                           );
                         },
                         itemCount: tileTitle.value.length),
@@ -252,9 +254,13 @@ class NewTask extends HookWidget {
                                                   .toList()
                                                 ..add(SingleTileTitle.value);
 
-                                              myList.add({
-                                                SingleTileTitle.value: SmallTile.checkStatuss
-                                              });
+                                              Map<String, Object> fb = new Map();
+
+                                              // fBList.value = fBList.value.toList()..add(SingleTileTitle.value, fBCheck.value);
+
+                                              // myList.add({
+                                              //   SingleTileTitle.value: SmallTile.checkStatuss
+                                              // });
 
                                               print('LIsssssssssss: $myList');
                                               print('LIsdgvfddgsssss: ${tileTitle.value}');
@@ -314,17 +320,20 @@ class NewTask extends HookWidget {
                                 ' ' +
                                 _selectedDay.value.year.toString();
                             db['Subtasks'] = tileTitle.value.toList();
-                            db['subtasks2'] = myList.toList();
+                            // db['subtasks2'] = myList.toList();
 
+                            print('Trying to save');
                             _firestore
                                 .collection(category.value)
                                 .doc()
                                 .set(db)
                                 .whenComplete(() {
                               _showToast(context, 'Successfully saved');
+                              print('Saveddddddddddddddddddd');
                               Navigator.pop(context);
                             }).onError((error, stackTrace) => () {
                                       _showToast(context, 'Failed to save');
+                                      print('Faileddddddddddddddddd: $error');
                                     });
                           },
                           child: Text(

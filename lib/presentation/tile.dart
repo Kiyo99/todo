@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SmallTile extends HookWidget {
-  SmallTile({Key? key, required this.title});
+  SmallTile({Key? key, required this.title, required this.check});
 
   final String title;
-  static late bool checkStatuss = false;
+  final bool check;
+  // static late bool checkStatuss = false;
   @override
   Widget build(BuildContext context) {
 
-    final checkStatus = useState(checkStatuss);
+    final checkStatus = useState(check);
 
     Color _color = Color(0xff828588);
     return Row(
@@ -26,10 +27,9 @@ class SmallTile extends HookWidget {
             ),
             activeColor: Colors.black,
             onChanged: (bool? newValue) {
+              print('ini: ${checkStatus.value}');
                 checkStatus.value = newValue!;
-                checkStatuss = true;
                 print('New value: $newValue');
-                print('ini: ${checkStatus.value}');
             },
           ),
         ),
